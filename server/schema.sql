@@ -45,6 +45,7 @@ CREATE TABLE `phone_home_tb` (
   `ip` varchar(16) NOT NULL,
   `country_code` varchar(5) DEFAULT NULL,
   `country_name` varchar(40) DEFAULT NULL,
+  `type` varchar(20) DEFAULT NULL,
   `reg_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`uuid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
