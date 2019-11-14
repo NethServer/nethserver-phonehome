@@ -181,7 +181,7 @@
   }
 
   $rest = new RestServer();
-  $rest->addServiceClass(AddInfo);
-  $rest->addServiceClass(GetInfo);
-  $rest->addServiceClass(GetCountryCoor);
+  $rest->addServiceClass('AddInfo');
+  $rest->addServiceClass('GetInfo');
+  $rest->addServiceClass('GetCountryCoor');
   $rest->handle();
