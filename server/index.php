@@ -6,7 +6,7 @@
   include("geoip/src/geoip.inc");
 
   class AddInfo {
-     public function add_info($uuid, $release) {
+     public function add_info($uuid, $release, $type = "community") {
 
 	  // get ip from remote address
       $ip = $_SERVER['REMOTE_ADDR'];
@@ -35,12 +35,14 @@
                                             ip,
                                             country_code,
                                             country_name,
+                                            type,
                                             reg_date)
                 VALUES (:uuid,
                         :release,
                         :ip,
                         :country_code,
                         :country_name,
+                        :type,
                         NOW())";
 
         // prepare statement
@@ -51,7 +53,8 @@
                               ':release'              => $release,
                               ':ip'                   => $ip,
                               ':country_code'         => $country_code,
-                              ':country_name'         => $country_name
+                              ':country_name'         => $country_name,
+                              ':type'                 => $type
                             ));
 
         // close connession
@@ -178,7 +181,7 @@
   }
 
   $rest = new RestServer();
-  $rest->addServiceClass(AddInfo);
-  $rest->addServiceClass(GetInfo);
-  $rest->addServiceClass(GetCountryCoor);
+  $rest->addServiceClass('AddInfo');
+  $rest->addServiceClass('GetInfo');
+  $rest->addServiceClass('GetCountryCoor');
   $rest->handle();

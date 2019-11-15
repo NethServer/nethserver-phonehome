@@ -70,10 +70,24 @@ fi
 #get proxy options
 PROXY_OPTIONS="$PROXY_OPTIONS_SERVER $PROXY_OPTIONS_USER"
 
-#get uuid and release
+# get uuid and release
 UUID=`/sbin/e-smith/config getprop phone-home uuid`
 RELEASE=`/sbin/e-smith/config getprop sysconfig Version`
 
+# get installation type: community, subscription or enterprise
+TYPE="community"
+
+# if the machine uses Nethesis API, consider it as Enterprise
+# no matter if registered or not
+/sbin/e-smith/config getprop subscription ApiUrl | grep -q nethesis
+if [ $? -eq 0 ]; then
+    TYPE="enterprise"
+else
+    if [ ! -z $(/sbin/e-smith/config getprop subscription SystemId) ]; then
+        TYPE="subscription"
+    fi
+fi
+
 #send data
-curl -L -s -X POST --data "method=add_info&uuid=$UUID&release=$RELEASE" $PROXY_OPTIONS https://$SERVER_IP/index.php
+curl -L -s -X POST --data "method=add_info&uuid=$UUID&release=$RELEASE&type=$TYPE" $PROXY_OPTIONS https://$SERVER_IP/index.php
 
