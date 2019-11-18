@@ -42,15 +42,10 @@
 						$pArray[strtolower($key)] = $requestAttributes[strtolower($key)];
 					}
 	
-					if (count($pArray) == $paramCount && !in_array(null, $pArray)) {
-						$result = call_user_func_array(array($serviceClass, $method), $pArray);
+				    $result = call_user_func_array(array($serviceClass, $method), $pArray);
 
-						if ($result != null) {
-							echo json_encode($result);
-						}
-					}
-					else {
-						echo json_encode(array('error' => "Required parameter(s) for ". $method .": ". $paramStr));
+					if ($result != null) {
+						echo json_encode($result);
 					}
 				}
 				else {
