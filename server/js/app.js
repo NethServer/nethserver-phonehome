@@ -7,14 +7,14 @@ $("#totalUnity").hide();
 var basemaps = {
   Default: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 5,
-    minZoom: 2,
+    minZoom: 1,
     id: "OpenStreet",
   }),
   Dark: L.tileLayer(
     "http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
     {
       maxZoom: 5,
-      minZoom: 2,
+      minZoom: 1,
       id: "MapID",
     }
   ),
@@ -22,13 +22,13 @@ var basemaps = {
     "http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
     {
       maxZoom: 5,
-      minZoom: 2,
+      minZoom: 1,
       id: "MapID",
     }
   ),
   Detailed: L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
     maxZoom: 5,
-    minZoom: 2,
+    minZoom: 1,
     id: "MapID",
   }),
 };
@@ -37,7 +37,7 @@ var mapOptions = {
   zoomControl: false,
   attributionControl: false,
   center: [27.9027835, 17.4963655],
-  zoom: 3,
+  zoom: 1.5,
   layers: [basemaps.Default],
 };
 //Render Main Map
@@ -115,8 +115,8 @@ var themeControl = L.control
   })
   .addTo(map);
 //Lock size of the map
-var southWest = L.latLng(-82.98155760646617, -100),
-  northEast = L.latLng(90.99346179538875, 100);
+var southWest = L.latLng(-82.98155760646617, -99999),
+  northEast = L.latLng(90.99346179538875, 99999);
 var bounds = L.latLngBounds(southWest, northEast);
 map.setMaxBounds(bounds);
 map.on("drag", function () {
@@ -181,13 +181,15 @@ $.ajax({
                 ("</b></td></tr>");
                 //Check the total number of the installations
                 totalInstallations += parseInt(installationsNumber);
-                globalInstallations += totalInstallations;
               }
+              globalInstallations += totalInstallations;
               if (totalInstallations >= 1000) {
                 totalInstallations =
                   Math.floor(totalInstallations / 1000).toString() + "k";
               }
               marker.options.icon.options.text = totalInstallations;
+              //Show the unity total
+              $("#totalUnity").text(globalInstallations.toString());
               //Create the marker body
               content +=
                 '<table class="table  is-hoverable">' +
@@ -206,6 +208,8 @@ $.ajax({
               $("#map").css("filter", "blur(0px)");
               $("#button").show();
               $("#totalUnity").show();
+              $(".leaflet-control-zoom").css("visibility", "visible");
+              $(".leaflet-control-layers-toggle").css("visibility", "visible");
               //Check wich currency of time is selected
               var selectedTime = $("#current_interval").text();
               //Change color of text selected
@@ -244,8 +248,6 @@ $.ajax({
               }
             }
           }
-          //Show the unity total
-          $("#totalUnity").text(globalInstallations.toString());
         }
       });
     });
