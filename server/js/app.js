@@ -1,302 +1,256 @@
-function initMap() {
-    google.load("visualization", "1", {
-        packages: ["geochart"]
-    });
-    google.setOnLoadCallback(initialize);
-    // ip server with api
-    var server_ip = 'phonehome.nethserver.org';
-
-    function initialize() {
-
-        var center = new google.maps.LatLng(27.9027835, 17.4963655);
-
-        // create an array of styles.
-        var styles = [{
-            "featureType": "water",
-            "elementType": "geometry",
-            "stylers": [{
-                "color": "#193341"
-            }]
-        }, {
-            "featureType": "landscape",
-            "elementType": "geometry",
-            "stylers": [{
-                "color": "#2c5a71"
-            }]
-        }, {
-            "featureType": "road",
-            "elementType": "geometry",
-            "stylers": [{
-                "color": "#29768a"
-            }, {
-                "lightness": -37
-            }]
-        }, {
-            "featureType": "poi",
-            "elementType": "geometry",
-            "stylers": [{
-                "color": "#406d80"
-            }]
-        }, {
-            "featureType": "transit",
-            "elementType": "geometry",
-            "stylers": [{
-                "color": "#406d80"
-            }]
-        }, {
-            "elementType": "labels.text.stroke",
-            "stylers": [{
-                "visibility": "on"
-            }, {
-                "color": "#3e606f"
-            }, {
-                "weight": 2
-            }, {
-                "gamma": 0.84
-            }]
-        }, {
-            "elementType": "labels.text.fill",
-            "stylers": [{
-                "color": "#ffffff"
-            }]
-        }, {
-            "featureType": "administrative",
-            "elementType": "geometry",
-            "stylers": [{
-                "weight": 0.6
-            }, {
-                "color": "#1a3541"
-            }]
-        }, {
-            "elementType": "labels.icon",
-            "stylers": [{
-                "visibility": "off"
-            }]
-        }, {
-            "featureType": "poi.park",
-            "elementType": "geometry",
-            "stylers": [{
-                "color": "#2c5a71"
-            }]
-        }];
-
-        //var styles = [{"featureType":"all","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"administrative","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"administrative","elementType":"labels","stylers":[{"visibility":"on"}]},{"featureType":"administrative","elementType":"labels.text","stylers":[{"visibility":"on"}]},{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"},{"visibility":"on"}]},{"featureType":"administrative","elementType":"labels.text.stroke","stylers":[{"visibility":"on"}]},{"featureType":"administrative","elementType":"labels.icon","stylers":[{"visibility":"on"}]},{"featureType":"administrative.country","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"administrative.province","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"administrative.locality","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"administrative.neighborhood","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"administrative.land_parcel","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"},{"visibility":"on"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"poi.attraction","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"poi.business","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"poi.government","elementType":"geometry","stylers":[{"visibility":"on"}]},{"featureType":"poi.medical","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"poi.park","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"poi.place_of_worship","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"poi.school","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"poi.sports_complex","elementType":"all","stylers":[{"visibility":"on"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45},{"visibility":"on"}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#5c96bc"},{"visibility":"on"}]}];
-
-        // create a new StyledMapType object, passing it the array of styles,
-        // as well as the name to be displayed on the map type control.
-        var styledMap = new google.maps.StyledMapType(styles, {
-            name: "Styled Map"
-        });
-
-        // creating the map centered
-        var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 3,
-            minZoom: 2,
-            maxZoom: 6,
-            center: center,
-            streetViewControl: false,
-            disableDoubleClickZoom: true,
-            mapTypeControl: false
-        });
-
-        var prec_center_lat = 0;
-
-        function changeMapBackground(color) {
-            var dom = document.getElementById('map');
-
-            if (color)
-                dom.style.backgroundColor = "#193341";
-            else
-                dom.style.backgroundColor = "#2c5a71";
-        }
-
-        // associate the styled map with the MapTypeId and set it to display.
-        map.mapTypes.set('map_style', styledMap);
-        map.setMapTypeId('map_style');
-        changeMapBackground(1);
-
-        map.addListener('center_changed', function() {
-            center = map.getCenter();
-
-            if (prec_center_lat >= 0 && center.lat() < 0)
-                changeMapBackground(0);
-            else if (prec_center_lat < 0 && center.lat() >= 0)
-                changeMapBackground(1);
-            else
-                return 0;
-            prec_center_lat = center.lat();
-        });
-
-        // using API to get installation info
-        var interval;
-        var interval_menu = document.getElementById('current_interval');
-        var interval = sessionStorage.getItem("interval_value");
-        if (interval == '7')
-            interval_menu.innerHTML = "Last week";
-        else if (interval == '30')
-            interval_menu.innerHTML = "Last month";
-        else if (interval == '180')
-            interval_menu.innerHTML = "Last 6 months";
-        else if (interval == '365')
-            interval_menu.innerHTML = "Last year";
-        else if (interval == '1')
-            interval_menu.innerHTML = "All";
-        else {
-            interval = '7';
-            interval_menu.innerHTML = "Last week";
-        }
-
-        $.ajax({
-            url: "https://" + server_ip + "/index.php",
-            type: "GET",
-            data: "method=get_info&interval=" + interval,
-            success: function(resp) {
-
-                var conquered_country = [];
-                var nethservers = resp;
-                var installations_global = 0;
-
-                for (var i = 0; i < nethservers.length; i++) {
-
-                    var installations = nethservers[i].installations;
-                    var country_code = nethservers[i].country_code.trim();
-                    var country_name = nethservers[i].country_name;
-                    var total_installations = 0;
-                    var text_to_show = '';
-
-                    var values = installations.split(',');
-                    values.sort();
-
-                    for (var j = 0; j < values.length; j++) {
-
-                        var result = values[j].split('#');
-                        var release_tag = result[0];
-
-                        var num = result[1];
-                        total_installations += parseInt(num);
-
-                        text_to_show += '<tr><td><b>' + release_tag + '</b></td><td><b>' + num + '</b></td></tr>';
-                    }
-
-                    installations_global += total_installations;
-                    if (country_name != '' && country_code != '') {
-                        var content = '<div id="content" style="">' +
-                            '<div id="siteNotice"></div>' +
-                            '<div id="bodyContent">' +
-                            '<table class="example-table-content">' +
-                            '<thead><tr><th style="background-color: white; color: black; font-size: 18;" colspan="2">' + country_name + '</th></tr></thead>' +
-                            '<tbody><tr><th>Release</th><th>Installations</th></tr></tbody>' +
-                            text_to_show +
-                            '</table>' +
-                            '</div>' +
-                            '</div>';
-
-                        if (total_installations >= 1000) {
-                            total_installations = Math.floor(total_installations / 1000).toString() + 'K+';
-                        }
-                        createMarker(content, country_code, country_name, map, total_installations);
-                        conquered_country.push("" + country_code + "")
-                    }
-                }
-
-                $('#resume').text(installations_global.toString());
-
-                var world_geometry = new google.maps.FusionTablesLayer({
-                    query: {
-                        select: 'geometry',
-                        from: '1-d8ajjL0fDhYxx1lYoISmYfOryQX6uYdTK-bmmuK',
-                        where: "ISO2 IN ('" + conquered_country.join("','") + "')"
-                    },
-                    map: map,
-                    suppressInfoWindows: true
-                });
-            },
-            error: function(e) {
-                console.log("Get info API error.");
-            }
-        });
+//Init Overlays
+var overlays = {};
+//Hide the button that will be showed after the page is charged
+$("#button").hide();
+$("#totalUnity").hide();
+//Init BaseMaps with all the tile that we need
+var basemaps = {
+  Default: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 5,
+    minZoom: 2,
+    id: "OpenStreet",
+  }),
+  Dark: L.tileLayer(
+    "http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 5,
+      minZoom: 2,
+      id: "MapID",
     }
-
-    function createMarker(content, country_code, country_name, map, total_installations) {
-
-        if (total_installations >= 1000)
-            total_installations = total_installations / 1000 + 'K';
-
-        total_installations = total_installations.toString();
-
-        if (!window.infowindow)
-            window.infowindow = new google.maps.InfoWindow();
-        $.ajax({
-            url: "https://" + server_ip + "/index.php",
-            type: "GET",
-            data: "method=get_country_coor&country_code=" + country_code,
-            success: function(resp) {
-		console.log(resp, country_code)
-                var pos = new google.maps.LatLng(parseFloat(resp[0].lat), parseFloat(resp[0].lng));
-                var marker = new MarkerWithLabel({
-                    position: pos,
-                    map: map,
-                    icon: 'images/m1.png',
-                    labelContent: total_installations,
-                    labelAnchor: new google.maps.Point(total_installations.length * 4, 32),
-                    labelClass: "labels",
-                });
-                google.maps.event.addListener(marker, "click", function(e) {
-                    infowindow.close();
-                    infowindow.setContent(content);
-                    infowindow.open(map, marker);
-                });
-            }
+  ),
+  Light: L.tileLayer(
+    "http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+    {
+      maxZoom: 5,
+      minZoom: 2,
+      id: "MapID",
+    }
+  ),
+  Detailed: L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+    maxZoom: 5,
+    minZoom: 2,
+    id: "MapID",
+  }),
+};
+//Set all the options of the map
+var mapOptions = {
+  zoomControl: false,
+  attributionControl: false,
+  center: [27.9027835, 17.4963655],
+  zoom: 3,
+  layers: [basemaps.Default],
+};
+//Render Main Map
+var map = L.map("map", mapOptions);
+map.on("baselayerchange", onOverlayAdd);
+function onOverlayAdd(e) {
+  //Find wich map the user has selected
+  for (var i in geoJsons) {
+    var themeSelected = e.name;
+    switch (themeSelected) {
+      case "Default":
+        var geojson = geoJsons[i];
+        geojson.setStyle({
+          weight: 2,
+          opacity: 1,
+          dashArray: "2",
+          color: "#4E6E7D",
+          fillOpacity: 0.7,
         });
+        break;
+      case "Dark":
+        var geojson = geoJsons[i];
+        geojson.setStyle({
+          weight: 2,
+          opacity: 1,
+          dashArray: "2",
+          color: "#E66952  ",
+          fillOpacity: 0.7,
+        });
+        break;
+      case "Light":
+        var geojson = geoJsons[i];
+        geojson.setStyle({
+          weight: 2,
+          opacity: 1,
+          dashArray: "2",
+          color: "#591COB",
+          fillOpacity: 0.7,
+        });
+        break;
+      case "Detailed":
+        var geojson = geoJsons[i];
+        geojson.setStyle({
+          weight: 2,
+          opacity: 1,
+          dashArray: "2",
+          color: "#56B7B4",
+          fillOpacity: 0.7,
+        });
+        break;
+      default:
+        var geojson = geoJsons[i];
+        geojson.setStyle({
+          weight: 2,
+          opacity: 1,
+          dashArray: "2",
+          color: "pink",
+          fillOpacity: 0.7,
+        });
+        break;
     }
-
-    function refresh_interval() {
-        var interval_menu = document.getElementById('current_interval');
-        var toStore = 0;
-        if (interval_menu.innerHTML == "Last week")
-            toStore = 7;
-        else if (interval_menu.innerHTML == "Last month")
-            toStore = 30;
-        else if (interval_menu.innerHTML == "Last 6 months")
-            toStore = 180;
-        else if (interval_menu.innerHTML == "Last year")
-            toStore = 365;
-        else if (interval_menu.innerHTML == "All")
-            toStore = 1;
-
-        sessionStorage.setItem("interval_value", toStore);
-        location.reload();
-    }
-
-    document.getElementById("interval_week").addEventListener("click", function() {
-        var interval_menu = document.getElementById('current_interval');
-        interval_menu.innerHTML = "Last week";
-        refresh_interval();
-    });
-
-    document.getElementById("interval_month").addEventListener("click", function() {
-        var interval_menu = document.getElementById('current_interval');
-        interval_menu.innerHTML = "Last month";
-        refresh_interval();
-    });
-
-    document.getElementById("interval_6months").addEventListener("click", function() {
-        var interval_menu = document.getElementById('current_interval');
-        interval_menu.innerHTML = "Last 6 months";
-        refresh_interval();
-    });
-
-    document.getElementById("interval_year").addEventListener("click", function() {
-        var interval_menu = document.getElementById('current_interval');
-        interval_menu.innerHTML = "Last year";
-        refresh_interval();
-    });
-
-    document.getElementById("interval_all").addEventListener("click", function() {
-        var interval_menu = document.getElementById('current_interval');
-        interval_menu.innerHTML = "All";
-        refresh_interval();
-    });
-
-    google.maps.event.addDomListener(window, 'load', initialize);
+  }
 }
+//Render Zoom Control
+L.control
+  .zoom({
+    position: "bottomright",
+  })
+  .addTo(map);
+//Render Layer Control & Move to Sidebar
+var themeControl = L.control
+  .layers(basemaps, overlays, {
+    position: "topright",
+    collapsed: true,
+  })
+  .addTo(map);
+//Lock size of the map
+var southWest = L.latLng(-82.98155760646617, -100),
+  northEast = L.latLng(90.99346179538875, 100);
+var bounds = L.latLngBounds(southWest, northEast);
+map.setMaxBounds(bounds);
+map.on("drag", function () {
+  map.panInsideBounds(bounds, { animate: false });
+});
+var geoJsons = [];
+var globalInstallations = 0;
+//call phoneHome Api to retrieve country installation
+$.ajax({
+  url: "https://www.nethserver.org/phone-home/index.php",
+  type: "GET",
+  data: "method=get_info&interval=" + interval,
+  success: function (resp) {
+    //Get response from Api
+    var installations = resp;
+    //Get geoJson
+    $.getJSON("./js/map/layer.geojson", function (geoJson) {
+      //get countryCodes
+      $.getJSON("./js/map/coordinates.json", function (countryCodes) {
+        //loop installations
+        for (var i in installations) {
+          var installation = installations[i];
+          //get geojson coordinates
+          var coordinates = getCoordinates(geoJson, installation.country_code);
+          //get centroide of marker
+          var centroide = getCentroide(countryCodes, installation.country_code);
+          // //get installations of country
+          var nethserverInstallations = getNethserverInstallation(
+            installation.installations,
+            installation.country_name
+          );
+          //draw elements: draw layer
+          if (coordinates) {
+            var geo = L.geoJson(coordinates, {
+              style: style,
+            }).addTo(map);
+            geoJsons.push(geo);
+          }
+          //draw elements: draw marker
+          if (centroide) {
+            var marker = L.marker(centroide, {
+              icon: L.BeautifyIcon.icon(icon),
+            });
+          }
+          //draw elemensts: draw popup
+          if (nethserverInstallations.length > 0) {
+            if (marker) {
+              var content = "";
+              var textMarker = "";
+              var totalInstallations = 0;
+
+              for (var i in nethserverInstallations) {
+                //Create all the variable that will be showed in the marker
+                installationsNumber = nethserverInstallations[i].number;
+                versionsInstallation = nethserverInstallations[i].version;
+                countryName = nethserverInstallations[i].countryN;
+                textMarker +=
+                  "<tr><td><b>" +
+                  versionsInstallation +
+                  "</b></td><td><b>" +
+                  installationsNumber;
+                ("</b></td></tr>");
+                //Check the total number of the installations
+                totalInstallations += parseInt(installationsNumber);
+                globalInstallations += totalInstallations;
+              }
+              if (totalInstallations >= 1000) {
+                totalInstallations =
+                  Math.floor(totalInstallations / 1000).toString() + "k";
+              }
+              marker.options.icon.options.text = totalInstallations;
+              //Create the marker body
+              content +=
+                '<table class="table  is-hoverable">' +
+                '<thead><tr><th style="background-color: white; color: black; font-size: 12; border-radius:4px; border-color: transparent; " colspan="2";>' +
+                countryName +
+                "</th></tr></thead>" +
+                "<tbody><tr><th>Release</th><th>Installations</th></tr></tbody>" +
+                textMarker +
+                "</table>" +
+                "</div>" +
+                "</div>";
+              var txt = `${content}`;
+              marker.addTo(map).bindPopup(txt);
+              //when the map is completely load hide the blur effect
+              $("#loader").hide();
+              $("#map").css("filter", "blur(0px)");
+              $("#button").show();
+              $("#totalUnity").show();
+              //Check wich currency of time is selected
+              var selectedTime = $("#current_interval").text();
+              //Change color of text selected
+              switch (selectedTime) {
+                case "Last week":
+                  $("#interval_week").css("background-color", "#1F3549") &&
+                    $("#interval_week").css("color", "white") &&
+                    $("#interval_week").css("margin-top", "-5px");
+                  break;
+                case "Last month":
+                  $("#interval_month").css("background-color", "#1F3549") &&
+                    $("#interval_month").css("color", "white");
+                  break;
+                case "Last 6 months":
+                  $("#interval_6months").css("background-color", "#1F3549") &&
+                    $("#interval_6months").css("color", "white");
+                  break;
+                case "Last year":
+                  $("#interval_year").css("background-color", "#1F3549") &&
+                    $("#interval_year").css("color", "white") &&
+                    $("#interval_year").css("margin-bottom", "-8px");
+                  break;
+                case "All":
+                  $("#interval_all").css("background-color", "#1F3549") &&
+                    $("#interval_all").css("color", "white") &&
+                    $("#interval_all").css("margin-top", "-8px") &&
+                    $("#interval_all").css("margin-bottom", "-8px") &&
+                    $("#interval_all").css(
+                      "border-bottom-left-radius",
+                      "4px"
+                    ) &&
+                    $("#interval_all").css("border-bottom-right-radius", "4px");
+                  break;
+                default:
+                  break;
+              }
+            }
+          }
+          //Show the unity total
+          $("#totalUnity").text(globalInstallations.toString());
+        }
+      });
+    });
+  },
+  error: function (errResp) {
+    console.error(errResp);
+  },
+});
