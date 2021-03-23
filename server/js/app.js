@@ -126,7 +126,7 @@ var geoJsons = [];
 var globalInstallations = 0;
 //call phoneHome Api to retrieve country installation
 $.ajax({
-  url: "https://www.nethserver.org/phone-home/index.php",
+  url: "https://phonehome.nethserver.org/index.php",
   type: "GET",
   data: "method=get_info&interval=" + interval,
   success: function (resp) {
