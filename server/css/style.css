@@ -236,6 +236,7 @@ input[type="radio"] {
   border-color: transparent;
   color: #fff;
   margin-left: 4px !important;
+  visibility: hidden;
   z-index: 11px  !important;
 }
 .beautify-marker {
@@ -272,4 +273,5 @@ input[type="radio"] {
   height: 50px;
   width: auto;
   font-weight: bold;
+  visibility: hidden;
 }

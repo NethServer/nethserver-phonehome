@@ -210,6 +210,8 @@ $.ajax({
               $("#totalUnity").show();
               $(".leaflet-control-zoom").css("visibility", "visible");
               $(".leaflet-control-layers-toggle").css("visibility", "visible");
+              $(".button.is-info").css("visibility", "visible");
+              $("#totalUnity").css("visibility", "visible");
               //Check wich currency of time is selected
               var selectedTime = $("#current_interval").text();
               //Change color of text selected
