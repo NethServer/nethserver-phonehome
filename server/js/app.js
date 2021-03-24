@@ -133,9 +133,9 @@ $.ajax({
     //Get response from Api
     var installations = resp;
     //Get geoJson
-    $.getJSON("./js/map/layer.geojson", function (geoJson) {
+      var geoJson = LAYER;
       //get countryCodes
-      $.getJSON("./js/map/coordinates.json", function (countryCodes) {
+        var countryCodes = COORDINATES;
         //loop installations
         for (var i in installations) {
           var installation = installations[i];
@@ -249,8 +249,6 @@ $.ajax({
             }
           }
         }
-      });
-    });
   },
   error: function (errResp) {
     console.error(errResp);
