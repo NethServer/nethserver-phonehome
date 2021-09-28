@@ -92,7 +92,7 @@
                             FROM phone_home_tb ";
 
         if ($interval!=='1') {
-          $sql .= " WHERE reg_date >= DATE_SUB(CURDATE(), INTERVAL $interval DAY)";
+          $sql .= " WHERE reg_date >= DATE_SUB(CURDATE(), INTERVAL :interval DAY)";
         }
 
         $sql .= " GROUP BY release_tag, country_code
@@ -103,7 +103,7 @@
         $stmt = $conn->prepare($sql);
 
         // execute query
-        $stmt->execute();
+        $stmt->execute(array(':interval' => intval($interval)));
 
         // create new empty array
         $infos = array();
@@ -148,8 +148,8 @@
 
                 FROM country_name_map
 
-                WHERE code = '$country_code'";
-        }
+                WHERE code = ':country_code'";
+}
         catch(PDOException $e) {
           echo $e->getMessage();
         }
@@ -158,7 +158,7 @@
         $stmt = $conn->prepare($sql);
 
         // execute query
-        $stmt->execute();
+        $stmt->execute(array(':country_code' => $country_code));
 
         // create new empty array
         $infos = array();
