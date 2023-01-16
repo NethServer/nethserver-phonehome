@@ -1,5 +1,5 @@
 =====================
-nehserver-phonenehome
+nethserver-phonenehome
 =====================
 
 This tool is used to tracks all NethServer's installations around the world.
